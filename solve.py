@@ -31,7 +31,12 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
         rewrite_question_input.append(
             {
                 "role": "user",
-                "content": f"""请基于对话历史，对新问题进行修改，如果新问题与历史相关，你必须结合语境将代词替换为相应的指代内容，让它的提问更加明确；否则保留原始的新问题。只修改新问题，不作任何回答：\n新问题：{query}\n修改后的新问题："""
+                "content": f"""请基于对话历史，对后续问题进行补全重构，如果后续问题与历史相关，你必须结合语境将代词替换为相应的指代内容，让它的提问更加明确；否则直接返回原始的后续问题。
+                注意：请不要对后续问题做任何回答和解释。
+
+                后续问题：{query}
+
+                修改后的后续问题："""
             }
         )
         new_query = llm(rewrite_question_input)
@@ -43,13 +48,18 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
     doc_string = ""
     for i, doc in enumerate(docs):
         doc_string = doc_string + doc + "\n"
+    # history_obj.history.append(
+    #     {
+    #         "role": "user",
+    #         "content": f"请基于参考，回答问题，不需要标注任何引用：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
+    #     }
+    # )
     history_obj.history.append(
         {
             "role": "user",
-            "content": f"请基于参考，回答问题，不需要标注任何引用：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
+            "content": f"请基于参考，回答问题，并给出参考依据：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
         }
     )
-
     # 调用大模型获取回复
     response = llm(history_obj.history)
 
