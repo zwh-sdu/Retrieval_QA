@@ -27,6 +27,10 @@ def get_bot_response():
     data = json.loads(request.get_data())
     userText = data['query']
     session_id = data["id"]  # 用户id，用于保存对话历史
+    try:
+        top_k = int(data["top_k"])
+    except:
+        top_k = 2
 
     # 获取对话历史，如果有的话
     if session_id in session_histories:
@@ -51,15 +55,14 @@ def get_bot_response():
         return str("已清空")
 
     response = Response(
-        get_knowledge_based_answer(query=userText, history_obj=history_obj, url_lucene=args.url_lucene),
+        get_knowledge_based_answer(query=userText, history_obj=history_obj, url_retrieval=args.url_lucene, top_k=top_k),
         content_type='text/plain; charset=utf-8')
 
     return response
 
 
 # ----------------------------------------------------
-parser = argparse.ArgumentParser(
-    description='服务调用方法：python app.py --url_llm "大模型地址" --port "端口" --url_lucene "lucene部署地址"')
+parser = argparse.ArgumentParser(description='')
 parser.add_argument('--port', default=None, type=int, help='服务端口')
 parser.add_argument('--url_lucene', default="", type=str, help='lucene地址')
 parser.add_argument('--url_llm', default="", type=str, help='大模型地址')

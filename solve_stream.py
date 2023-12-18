@@ -2,7 +2,6 @@ import requests
 import json
 
 # Global Parameters
-RETRIEVAL_TOP_K = 2
 LLM_HISTORY_LEN = 30
 url_llm = ""
 
@@ -12,15 +11,15 @@ def init_cfg(url_llm_):
     url_llm = url_llm_
 
 
-def get_docs(question: str, url: str, top_k=RETRIEVAL_TOP_K):
+def get_docs(question: str, url: str, top_k=2):
     data = {"query": question, "top_k": top_k}
     docs = requests.post(url, json=data)
     docs = json.loads(docs.content)
     return docs["docs"]
 
 
-def get_knowledge_based_answer(query, history_obj, url_retrieval):
-    global url_llm, RETRIEVAL_TOP_K
+def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
+    global url_llm
 
     if len(history_obj.history) > LLM_HISTORY_LEN:
         history_obj.history = history_obj.history[-LLM_HISTORY_LEN:]
@@ -61,7 +60,7 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
         new_query = query
 
     # 获取相关文档
-    docs = get_docs(new_query, url_retrieval, RETRIEVAL_TOP_K)
+    docs = get_docs(new_query, url_retrieval, top_k)
     doc_string = ""
     for i, doc in enumerate(docs):
         doc_string = doc_string + doc + "\n"

@@ -32,7 +32,7 @@ app = Flask(__name__)
 def solve(messages):
     position = 0
     for response in model.chat(tokenizer, messages, stream=True):
-        chunk = response[position:].replace("baichuan", "岩土").replace("百川", "岩土").replace("Baichuan", "岩土")
+        chunk = response[position:]
         yield chunk
         # time.sleep(0.1)
         position = len(response)

@@ -25,6 +25,10 @@ def get_bot_response():
     data = json.loads(request.get_data())
     userText = data["query"]  # 用户输入
     session_id = data["id"]  # 用户id，用于保存对话历史
+    try:
+        top_k = int(data["top_k"])
+    except:
+        top_k = 2
 
     # 获取对话历史，如果有的话
     if session_id in session_histories:
@@ -49,7 +53,7 @@ def get_bot_response():
         return str("已清空")
 
     response = get_knowledge_based_answer(
-        query=userText, history_obj=history_obj, url_retrieval=args.url_retrieval
+        query=userText, history_obj=history_obj, url_retrieval=args.url_retrieval, top_k=top_k
     )
     return response
 
