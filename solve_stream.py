@@ -1,16 +1,15 @@
-from baichuan_llm import Baichuan
 import requests
 import json
 
 # Global Parameters
 RETRIEVAL_TOP_K = 2
 LLM_HISTORY_LEN = 30
-llm = Baichuan("")
+url_llm = ""
 
 
-def init_cfg(url_llm):
-    global llm
-    llm = Baichuan(url=url_llm)
+def init_cfg(url_llm_):
+    global url_llm
+    url_llm = url_llm_
 
 
 def get_docs(question: str, url: str, top_k=RETRIEVAL_TOP_K):
@@ -21,7 +20,7 @@ def get_docs(question: str, url: str, top_k=RETRIEVAL_TOP_K):
 
 
 def get_knowledge_based_answer(query, history_obj, url_retrieval):
-    global llm, RETRIEVAL_TOP_K
+    global url_llm, RETRIEVAL_TOP_K
 
     if len(history_obj.history) > LLM_HISTORY_LEN:
         history_obj.history = history_obj.history[-LLM_HISTORY_LEN:]
@@ -40,7 +39,24 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
                 修改后的后续问题："""
             }
         )
-        new_query = llm(rewrite_question_input)
+        stream = requests.post(url_llm, json={"messages": rewrite_question_input}, stream=True)
+        new_query = ""
+        if stream.status_code == 200:
+            buffer = b''
+            # 逐字节接收数据
+            for byte in stream.iter_content(1):
+                buffer += byte
+                try:
+                    # 尝试解码成 UTF-8 字符串
+                    decoded_chunk = buffer.decode('utf-8')
+                    # 处理解码后的字符串
+                    new_query += decoded_chunk
+                    # print(decoded_chunk, end='', flush=True)
+                    # 清空缓冲区
+                    buffer = b''
+                except UnicodeDecodeError:
+                    # 如果解码失败，继续接收字节
+                    pass
     else:
         new_query = query
 
@@ -62,7 +78,25 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
         }
     )
     # 调用大模型获取回复
-    response = llm(history_obj.history)
+    stream = requests.post(url_llm, json={"messages": history_obj.history}, stream=True)
+    response = ""
+    if stream.status_code == 200:
+        buffer = b''
+        # 逐字节接收数据
+        for byte in stream.iter_content(1):
+            buffer += byte
+            try:
+                # 尝试解码成 UTF-8 字符串
+                decoded_chunk = buffer.decode('utf-8')
+                # 处理解码后的字符串，例如打印
+                yield decoded_chunk
+                response += decoded_chunk
+                # print(decoded_chunk, end='', flush=True)
+                # 清空缓冲区
+                buffer = b''
+            except UnicodeDecodeError:
+                # 如果解码失败，继续接收字节
+                pass
 
     # 修改history，将之前的参考资料从history删除，避免history太长
     history_obj.history[-1] = {"role": "user", "content": query}
@@ -72,4 +106,3 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval):
         file.write(doc_string)
         for item in history_obj.history:
             file.write(str(item) + "\n")
-    return response

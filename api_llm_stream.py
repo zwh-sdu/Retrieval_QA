@@ -1,4 +1,5 @@
 import time
+
 from flask import Flask, request, Response
 from flask_cors import cross_origin
 import json
@@ -7,24 +8,34 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.utils import GenerationConfig
 import datetime
 import os
+import time
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
-model = AutoModelForCausalLM.from_pretrained("/data/shared/model/Baichuan2-13B-Chat/", torch_dtype=torch.float16,
+model = AutoModelForCausalLM.from_pretrained("/data/zwh/Baichuan2", torch_dtype=torch.float16, device_map="auto",
                                              trust_remote_code=True)
-model = model.quantize(8).cuda()
+# model = model.quantize(8).cuda()
 
 model.generation_config = GenerationConfig.from_pretrained(
-    "/data/shared/model/Baichuan2-13B-Chat/"
+    "/data/zwh/Baichuan2"
 )
 tokenizer = AutoTokenizer.from_pretrained(
-    "/data/shared/model/Baichuan2-13B-Chat/",
+    "/data/zwh/Baichuan2",
     use_fast=False,
     trust_remote_code=True
 )
 model.eval()
 
 app = Flask(__name__)
+
+
+def solve(messages):
+    position = 0
+    for response in model.chat(tokenizer, messages, stream=True):
+        chunk = response[position:].replace("baichuan", "岩土").replace("百川", "岩土").replace("Baichuan", "岩土")
+        yield chunk
+        # time.sleep(0.1)
+        position = len(response)
 
 
 @app.route('/', methods=['POST'])
@@ -35,15 +46,11 @@ def batch_chat():
     data = json.loads(request.get_data())
     now = datetime.datetime.now()
     time_format = now.strftime("%Y-%m-%d %H:%M:%S")
-    try:
-        messages = data.get("messages")
-        response = model.chat(tokenizer, messages)
-        answer = {"response": response, "history": [], "status": 200, "time": time_format}
-        return answer
-    except Exception as e:
-        return {"response": f"大模型预测出错:{repr(e)}", "history": [('', '')], "status": 444, "time": time_format}
+    messages = data.get("messages")
+
+    return Response(solve(messages), content_type='text/plain; charset=utf-8')
 
 
 if __name__ == '__main__':
     with torch.no_grad():
-        app.run(host='0.0.0.0', port=1707)
+        app.run(host='0.0.0.0', port=1709)
