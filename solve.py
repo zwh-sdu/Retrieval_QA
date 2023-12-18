@@ -19,14 +19,14 @@ def get_docs(question: str, url: str, top_k=2):
     return docs["docs"]
 
 
-def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k):
+def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
     global llm
 
     if len(history_obj.history) > LLM_HISTORY_LEN:
         history_obj.history = history_obj.history[-LLM_HISTORY_LEN:]
 
     # Rewrite question
-    if len(history_obj.history):
+    if len(history_obj.history) and top_k:
         rewrite_question_input = history_obj.history.copy()
         rewrite_question_input.append(
             {
@@ -54,12 +54,20 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k):
     #         "content": f"请基于参考，回答问题，不需要标注任何引用：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
     #     }
     # )
-    history_obj.history.append(
-        {
-            "role": "user",
-            "content": f"请基于参考，回答问题，并给出参考依据：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
-        }
-    )
+    if top_k:
+        history_obj.history.append(
+            {
+                "role": "user",
+                "content": f"请基于参考，回答问题，并给出参考依据：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
+            }
+        )
+    else:
+        history_obj.history.append(
+            {
+                "role": "user",
+                "content": f"{query}"
+            }
+        )
     # 调用大模型获取回复
     response = llm(history_obj.history)
 

@@ -54,23 +54,25 @@ def get_bot_response():
         history_obj.history = []
         return str("已清空")
 
-    response = Response(
-        get_knowledge_based_answer(query=userText, history_obj=history_obj, url_retrieval=args.url_lucene, top_k=top_k),
+    response = Response(get_knowledge_based_answer(
+        query=userText, history_obj=history_obj, url_retrieval=args.url_retrieval, top_k=top_k),
         content_type='text/plain; charset=utf-8')
 
     return response
 
 
-# ----------------------------------------------------
-parser = argparse.ArgumentParser(description='')
-parser.add_argument('--port', default=None, type=int, help='服务端口')
-parser.add_argument('--url_lucene', default="", type=str, help='lucene地址')
-parser.add_argument('--url_llm', default="", type=str, help='大模型地址')
+parser = argparse.ArgumentParser(
+    description="服务调用方法：python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1708/'"
+)
+parser.add_argument("--port", default=1704, type=int, help="服务端口")
+parser.add_argument(
+    "--url_retrieval", default="http://127.0.0.1:1709/", type=str, help="retrieval server 地址"
+)
+parser.add_argument(
+    "--url_llm", default="http://127.0.0.1:1708/", type=str, help="大模型 server 地址"
+)
 args = parser.parse_args()
 
 if __name__ == "__main__":
     init_cfg(args.url_llm)
-    if args.port:
-        app.run(host='0.0.0.0', port=1701)
-    else:
-        app.run(host='0.0.0.0', port=1701)
+    app.run(host="0.0.0.0", port=args.port)

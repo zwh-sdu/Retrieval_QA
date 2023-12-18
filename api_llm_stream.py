@@ -1,5 +1,5 @@
 import time
-
+import argparse
 from flask import Flask, request, Response
 from flask_cors import cross_origin
 import json
@@ -8,7 +8,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.utils import GenerationConfig
 import datetime
 import os
-import time
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
@@ -51,6 +50,10 @@ def batch_chat():
     return Response(solve(messages), content_type='text/plain; charset=utf-8')
 
 
+parser = argparse.ArgumentParser(description='')
+parser.add_argument('--port', default=1708, type=int, help='服务端口')
+args = parser.parse_args()
+
 if __name__ == '__main__':
     with torch.no_grad():
-        app.run(host='0.0.0.0', port=1709)
+        app.run(host='0.0.0.0', port=args.port)

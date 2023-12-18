@@ -6,6 +6,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.utils import GenerationConfig
 import datetime
+import argparse
 import os
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "3"
@@ -44,6 +45,10 @@ def batch_chat():
         return {"response": f"大模型预测出错:{repr(e)}", "history": [('', '')], "status": 444, "time": time_format}
 
 
+parser = argparse.ArgumentParser(description='')
+parser.add_argument('--port', default=1707, type=int, help='服务端口')
+args = parser.parse_args()
+
 if __name__ == '__main__':
     with torch.no_grad():
-        app.run(host='0.0.0.0', port=1707)
+        app.run(host='0.0.0.0', port=args.port)

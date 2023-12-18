@@ -5,7 +5,7 @@ data = {
     "query": "你好",
     "id": "111"
 }
-response = requests.post("http://127.0.0.1:1701/get", json=data, stream=True)
+response = requests.post("http://127.0.0.1:1704/get", json=data, stream=True)
 if response.status_code == 200:
     buffer = b''
     # 逐字节接收数据

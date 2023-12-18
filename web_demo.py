@@ -2,6 +2,7 @@ import gradio as gr
 import mdtex2html
 import random
 import requests
+import argparse
 
 
 def postprocess(self, y):
@@ -54,7 +55,7 @@ def parse_text(text):
 def predict(query, chatbot, top_k, user_id):
     chatbot.append((parse_text(query), ""))
     data = {"query": query, "id": int(user_id), "top_k": int(top_k)}
-    stream = requests.post("http://127.0.0.1:1701/get", json=data, stream=True)
+    stream = requests.post(args.url_app_stream, json=data, stream=True)
     response = ""
     if stream.status_code == 200:
         buffer = b''
@@ -86,6 +87,14 @@ def reset_state():
     return []
 
 
+parser = argparse.ArgumentParser(
+    description="服务调用方法：python web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'"
+)
+parser.add_argument(
+    "--url_app_stream", default="http://127.0.0.1:1704/get", type=str, help="后端地址"
+)
+args = parser.parse_args()
+
 user_id = random.randint(1, 999999)
 with gr.Blocks() as demo:
     gr.HTML("""<h1 align="center">Retrieval QA</h1>""")
@@ -98,7 +107,7 @@ with gr.Blocks() as demo:
                 submitBtn = gr.Button("Submit", variant="primary")
         with gr.Column(scale=1):
             emptyBtn = gr.Button("Clear History")
-            top_k = gr.Slider(1, 5, value=2, step=1, label="Top K", interactive=True)
+            top_k = gr.Slider(0, 5, value=2, step=1, label="Top K", interactive=True)
             id = gr.Textbox(show_label=True, label="User ID", value=f"{user_id}", interactive=False)
     history = gr.State([])
     submitBtn.click(predict, [user_input, chatbot, top_k, id], [chatbot], show_progress=True)

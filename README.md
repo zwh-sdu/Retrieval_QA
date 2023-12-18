@@ -9,12 +9,22 @@
 - 流式
   [api_llm_stream.py](api_llm_stream.py)
 
+```shell
+python api_llm.py --port 1707
+python api_llm_stream.py --port 1708
+```
+
 ## 后端部署
 
 - 非流式
   [app.py](app.py)
 - 流式
   [app_stream.py](app_stream.py)
+
+```shell
+python app.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1707/'
+python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1708/'
+```
 
 ## 检索部署
 
@@ -32,6 +42,10 @@
 运行前请先部署好 [app_stream.py](app_stream.py)
 
 - [web_demo.py](web_demo.py)
+
+```shell
+python web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
+```
 
 ## Todo
 
