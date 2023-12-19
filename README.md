@@ -28,12 +28,19 @@ python stream/app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/'
 
 ## 检索部署
 
-- ES index 构建
+- ES 创建 index
+  [create_index.py](retrieval/create_index.py)
+- ES index 存数据
+  [save_data.py](retrieval/save_data.py)
+
 ```shell
 python retrieval/create_index.py --index_name my_index
 python retrieval/save_data.py --index_name my_index --file_path my_file.json
 ```
+
 - ES search 部署
+  [es_search_app.py](retrieval/es_search_app.py)
+
 ```shell
 python retrieval/es_search_app.py --port 1709 --index_name my_index
 ```
@@ -68,7 +75,7 @@ streamlit run demo/web_demo2.py --server.port 6006
 - [x] 流式输出
 - [x] web demo
 - [x] web demo2
-- [ ] ES 检索
+- [x] ES 检索
 - [ ] pdf, word, txt 格式数据读取及解析
 - [ ] 向量检索
 - [ ] 接口文档模版

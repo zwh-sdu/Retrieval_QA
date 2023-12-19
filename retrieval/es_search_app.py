@@ -4,11 +4,13 @@ import argparse
 import json
 
 from elasticsearch import Elasticsearch
+
 es = Elasticsearch(['http://127.0.0.1:9200'])
 # es = Elasticsearch(["http://127.0.0.1:9200/"], http_auth=('user', 'password'))
 
 app = Flask(__name__)
 app.static_folder = "static"
+
 
 class History:
     def __init__(self):
@@ -16,6 +18,7 @@ class History:
 
 
 session_histories = {}
+
 
 def search_index(index_name, query_str, top_K):
     query_body = {
@@ -32,6 +35,7 @@ def search_index(index_name, query_str, top_K):
     for hit in res['hits']['hits']:
         res_data.append(hit["_source"]["content"])
     return res_data
+
 
 @app.route("/get", methods=["POST"])
 @cross_origin()
