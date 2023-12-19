@@ -2,6 +2,9 @@ import argparse
 from flask import Flask, request, Response
 from flask_cors import cross_origin
 import time
+import sys
+
+sys.path.append("./")
 from stream.solve_stream import *
 
 app = Flask(__name__)

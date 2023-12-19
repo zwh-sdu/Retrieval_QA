@@ -71,7 +71,6 @@ def predict(query, chatbot, top_k, user_id):
                 response += decoded_chunk
                 chatbot[-1] = (parse_text(query), parse_text(response))
                 yield chatbot
-                time.sleep(1)
                 # 清空缓冲区
                 buffer = b''
             except UnicodeDecodeError:
