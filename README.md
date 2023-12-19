@@ -38,7 +38,7 @@ python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_
 
 ## Web demo
 
-仿照 [Chatglm](https://github.com/THUDM/ChatGLM-6B) 实现了一个基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
+仿照 [Chatglm](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
 运行前请先部署好 [app_stream.py](app_stream.py)
 
 - [web_demo.py](web_demo.py)
@@ -47,14 +47,24 @@ python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_
 python web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
 ```
 
+基于 Streamlit 的网页版 Demo
+
+- [web_demo2.py](web_demo2.py)
+
+```shell
+streamlit run web_demo2.py --server.port 6006
+```
+
 ## Todo
 
 - [x] 多轮对话，问题重构
 - [x] 流式输出
 - [x] web demo
+- [x] web demo2
 - [ ] ES 检索
 - [ ] pdf, word, txt 格式数据读取及解析
 - [ ] 向量检索
+- [ ] 接口文档模版
 
 ## 支持的大模型
 

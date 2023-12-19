@@ -1,3 +1,5 @@
+import time
+
 import gradio as gr
 import mdtex2html
 import random
@@ -69,14 +71,15 @@ def predict(query, chatbot, top_k, user_id):
                 response += decoded_chunk
                 chatbot[-1] = (parse_text(query), parse_text(response))
                 yield chatbot
+                time.sleep(1)
                 # 清空缓冲区
                 buffer = b''
             except UnicodeDecodeError:
                 # 如果解码失败，继续接收字节
                 pass
-    # else:
-    #     chatbot[-1] = (parse_text(query), parse_text("出错了"))
-    #     yield chatbot
+    else:
+        chatbot[-1] = (parse_text(query), parse_text("出错了"))
+        yield chatbot
 
 
 def reset_user_input():
