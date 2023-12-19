@@ -1,12 +1,8 @@
 import argparse
-import json
-import random
-import os
 from flask import Flask, request, Response
 from flask_cors import cross_origin
-import requests
 import time
-from solve_stream import *
+from stream.solve_stream import *
 
 app = Flask(__name__)
 app.static_folder = 'static'

@@ -5,25 +5,25 @@
 ## 大模型部署
 
 - 非流式
-  [api_llm.py](api_llm.py)
+  [api_llm.py](standard/api_llm.py)
 - 流式
-  [api_llm_stream.py](api_llm_stream.py)
+  [api_llm_stream.py](stream/api_llm_stream.py)
 
 ```shell
-python api_llm.py --port 1707
-python api_llm_stream.py --port 1708
+python standard/api_llm.py --port 1707
+python stream/api_llm_stream.py --port 1708
 ```
 
 ## 后端部署
 
 - 非流式
-  [app.py](app.py)
+  [app.py](standard/app.py)
 - 流式
-  [app_stream.py](app_stream.py)
+  [app_stream.py](stream/app_stream.py)
 
 ```shell
-python app.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1707/'
-python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1708/'
+python standard/app.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1707/'
+python stream/app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1708/'
 ```
 
 ## 检索部署
@@ -39,20 +39,20 @@ python app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_
 ## Web demo
 
 仿照 [Chatglm](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
-运行前请先部署好 [app_stream.py](app_stream.py)
+运行前请先部署好 [app_stream.py](stream/app_stream.py)
 
-- [web_demo.py](web_demo.py)
+- [web_demo.py](demo/web_demo.py)
 
 ```shell
-python web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
+python demo/web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
 ```
 
 基于 Streamlit 的网页版 Demo
 
-- [web_demo2.py](web_demo2.py)
+- [web_demo2.py](demo/web_demo2.py)
 
 ```shell
-streamlit run web_demo2.py --server.port 6006
+streamlit run demo/web_demo2.py --server.port 6006
 ```
 
 ## Todo
