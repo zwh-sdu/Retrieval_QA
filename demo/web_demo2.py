@@ -49,7 +49,9 @@ def predict(input, top_k, user_id, history=None):
     return history
 
 
-user_id = random.randint(1, 999999)
+if 'user_id' not in st.session_state:
+    # If not, generate a new user_id
+    st.session_state.user_id = random.randint(1, 999999)
 
 container = st.container()
 
@@ -58,7 +60,7 @@ prompt_text = st.text_area(label="用户命令输入",
                            height=100,
                            placeholder="请在这儿输入您的命令")
 
-id_box = st.sidebar.text("User ID: " + str(user_id))
+id_box = st.sidebar.text("User ID: " + str(st.session_state.user_id))
 
 top_k = st.sidebar.slider(
     'top_k', 0, 5, 2, step=1
@@ -70,4 +72,4 @@ if 'state' not in st.session_state:
 if st.button("发送", key="predict"):
     with st.spinner("AI正在思考，请稍等........"):
         # text generation
-        st.session_state["state"] = predict(prompt_text, top_k, user_id, st.session_state["state"])
+        st.session_state["state"] = predict(prompt_text, top_k, st.session_state.user_id, st.session_state["state"])
