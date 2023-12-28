@@ -20,9 +20,8 @@ session_histories = {}
 
 
 def temp(userText, top_k):
-    for i in range(5):
-        yield userText
-        yield "top k: " + str(top_k)
+    for i in range(1):
+        yield "这是一条测试回复"
         time.sleep(0.1)
 
 

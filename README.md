@@ -55,6 +55,8 @@ python retrieval/es_search_app.py --port 1709 --index_name my_index
 仿照 [Chatglm](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
 运行前请先部署好 [app_stream.py](stream/app_stream.py)
 
+![Web demo](img/web_demo.png)
+
 - [web_demo.py](demo/web_demo.py)
 
 ```shell
@@ -62,6 +64,8 @@ python demo/web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
 ```
 
 基于 Streamlit 的网页版 Demo
+
+![Web demo2](img/web_demo2.png)
 
 - [web_demo2.py](demo/web_demo2.py)
 
