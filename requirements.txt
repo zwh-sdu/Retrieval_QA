@@ -5,3 +5,5 @@ gradio==3.44.0
 streamlit
 streamlit_chat
 elasticsearch
+pdf2docx
+docx

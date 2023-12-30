@@ -47,8 +47,21 @@ python retrieval/es_search_app.py --port 1709 --index_name my_index
 
 ## 文件处理
 
-- pdf 处理
-- word 处理
+- pdf 处理 [pdf2word.py](read_file/pdf2word.py)
+
+将 pdf 转成 docx 文件。
+
+```shell
+python pdf2word.py --pdf_path 'xxx.pdf' --docx_path 'xxx.docx'
+```
+
+- word 处理 [word2list.py](read_file/word2list.py)
+
+读取 docx 文本，按照换行进行切片。
+
+```shell
+python word2list.py --docx_path 'xxx.docx' --output_path 'xxx.json' --max_length 500
+```
 
 ## Web demo
 
