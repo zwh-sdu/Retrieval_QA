@@ -27,15 +27,22 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
     # Rewrite question
     if len(history_obj.history) and top_k:
         rewrite_question_input = history_obj.history.copy()
+        # rewrite_question_input.append(
+        #     {
+        #         "role": "user",
+        #         "content": f"""请根据对话历史重构后续问题。 如果后续问题与对话历史相关，则必须结合上下文将代词替换为相应的指称内容，使其问题更加明确。否则直接返回原后续问题。
+        #         例如，将”该”、“上述”等代词替换为实际指称内容。
+        #         注意：禁止对后续问题提供任何答案或解释。
+        #
+        #         后续问题：{query}
+        #
+        #         修改后的后续问题："""
+        #     }
+        # )
         rewrite_question_input.append(
             {
                 "role": "user",
-                "content": f"""请基于对话历史，对后续问题进行补全重构，如果后续问题与历史相关，你必须结合语境将代词替换为相应的指代内容，让它的提问更加明确；否则直接返回原始的后续问题。
-                注意：请不要对后续问题做任何回答和解释。
-
-                后续问题：{query}
-
-                修改后的后续问题："""
+                "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
             }
         )
         stream = requests.post(url_llm, json={"messages": rewrite_question_input}, stream=True)
