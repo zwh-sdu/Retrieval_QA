@@ -118,3 +118,46 @@ streamlit run demo/web_demo2.py --server.port 6006
 ## 支持的大模型
 
 - Baichuan
+
+## 请求示例
+
+- 非流式
+```python
+import requests
+import random
+
+url = "http://127.0.0.1:1705/get"
+data = {
+    "query": "你好",
+    "id": random.randint(0, 9999999)
+}
+res = requests.post(url, json=data)
+print(res.content)
+```
+
+- 流式
+```python
+import requests
+import random
+
+data = {
+    "query": "你好",
+    "id": random.randint(0, 9999999)
+}
+response = requests.post("http://127.0.0.1:1705/get", json=data, stream=True)
+if response.status_code == 200:
+    buffer = b''
+    # 逐字节接收数据
+    for byte in response.iter_content(1):
+        buffer += byte
+        try:
+            # 尝试解码成 UTF-8 字符串
+            decoded_chunk = buffer.decode('utf-8')
+            # 处理解码后的字符串，例如打印
+            print(decoded_chunk, end='', flush=True)
+            # 清空缓冲区
+            buffer = b''
+        except UnicodeDecodeError:
+            # 如果解码失败，继续接收字节
+            pass
+```
