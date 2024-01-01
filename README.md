@@ -10,8 +10,8 @@
   [api_llm_stream.py](stream/api_llm_stream.py)
 
 ```shell
-python standard/api_llm.py --port 1707
-python stream/api_llm_stream.py --port 1708
+python standard/api_llm.py --port 1707 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
+python stream/api_llm_stream.py --port 1708 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
 ```
 
 ## 后端部署

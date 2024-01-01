@@ -1,3 +1,4 @@
+import argparse
 import time
 from flask import Flask, request, Response
 from flask_cors import cross_origin
@@ -6,23 +7,26 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.utils import GenerationConfig
 import datetime
-import argparse
 import os
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+parser = argparse.ArgumentParser()
+parser.add_argument('--cuda_id', type=int, default=0)
+parser.add_argument('--model_path', type=str, default='baichuan-inc/Baichuan2-13B-Chat')
+parser.add_argument('--port', type=int, default=1707)
+parser.add_argument('--quantize', type=bool, default=False, help='whether to quantize model')
+args = parser.parse_args()
 
-model = AutoModelForCausalLM.from_pretrained("/data/shared/model/Baichuan2-13B-Chat/", torch_dtype=torch.float16,
-                                             trust_remote_code=True)
-model = model.quantize(8).cuda()
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda_id)
 
-model.generation_config = GenerationConfig.from_pretrained(
-    "/data/shared/model/Baichuan2-13B-Chat/"
-)
-tokenizer = AutoTokenizer.from_pretrained(
-    "/data/shared/model/Baichuan2-13B-Chat/",
-    use_fast=False,
-    trust_remote_code=True
-)
+if args.quantize:
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, trust_remote_code=True)
+    model = model.quantize(8).cuda()
+else:
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, device_map="auto",
+                                                 trust_remote_code=True)
+model.generation_config = GenerationConfig.from_pretrained(args.model_path)
+tokenizer = AutoTokenizer.from_pretrained(args.model_path, use_fast=False, trust_remote_code=True)
+
 model.eval()
 
 app = Flask(__name__)
@@ -30,7 +34,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 @cross_origin()
-def batch_chat():
+def model_chat():
     global model, tokenizer
 
     data = json.loads(request.get_data())
@@ -44,10 +48,6 @@ def batch_chat():
     except Exception as e:
         return {"response": f"大模型预测出错:{repr(e)}", "history": [('', '')], "status": 444, "time": time_format}
 
-
-parser = argparse.ArgumentParser(description='')
-parser.add_argument('--port', default=1707, type=int, help='服务端口')
-args = parser.parse_args()
 
 if __name__ == '__main__':
     with torch.no_grad():

@@ -9,20 +9,24 @@ from transformers.generation.utils import GenerationConfig
 import datetime
 import os
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+parser = argparse.ArgumentParser()
+parser.add_argument('--cuda_id', type=int, default=0)
+parser.add_argument('--model_path', type=str, default='baichuan-inc/Baichuan2-13B-Chat')
+parser.add_argument('--port', type=int, default=1707)
+parser.add_argument('--quantize', type=bool, default=False, help='whether to quantize model')
+args = parser.parse_args()
 
-model = AutoModelForCausalLM.from_pretrained("/data/zwh/Baichuan2", torch_dtype=torch.float16, device_map="auto",
-                                             trust_remote_code=True)
-# model = model.quantize(8).cuda()
+os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda_id)
 
-model.generation_config = GenerationConfig.from_pretrained(
-    "/data/zwh/Baichuan2"
-)
-tokenizer = AutoTokenizer.from_pretrained(
-    "/data/zwh/Baichuan2",
-    use_fast=False,
-    trust_remote_code=True
-)
+if args.quantize:
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, trust_remote_code=True)
+    model = model.quantize(8).cuda()
+else:
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, device_map="auto",
+                                                 trust_remote_code=True)
+model.generation_config = GenerationConfig.from_pretrained(args.model_path)
+tokenizer = AutoTokenizer.from_pretrained(args.model_path, use_fast=False, trust_remote_code=True)
+
 model.eval()
 
 app = Flask(__name__)
@@ -39,7 +43,7 @@ def solve(messages):
 
 @app.route('/', methods=['POST'])
 @cross_origin()
-def batch_chat():
+def stream_chat():
     global model, tokenizer
 
     data = json.loads(request.get_data())
@@ -49,10 +53,6 @@ def batch_chat():
 
     return Response(solve(messages), content_type='text/plain; charset=utf-8')
 
-
-parser = argparse.ArgumentParser(description='')
-parser.add_argument('--port', default=1708, type=int, help='服务端口')
-args = parser.parse_args()
 
 if __name__ == '__main__':
     with torch.no_grad():

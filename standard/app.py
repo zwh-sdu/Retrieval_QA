@@ -58,16 +58,10 @@ def get_bot_response():
     return response
 
 
-parser = argparse.ArgumentParser(
-    description="服务调用方法：python app.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1707/'"
-)
+parser = argparse.ArgumentParser()
 parser.add_argument("--port", default=1705, type=int, help="服务端口")
-parser.add_argument(
-    "--url_retrieval", default="http://127.0.0.1:1709/", type=str, help="retrieval server 地址"
-)
-parser.add_argument(
-    "--url_llm", default="http://127.0.0.1:1707/", type=str, help="大模型 server 地址"
-)
+parser.add_argument("--url_retrieval", default="http://127.0.0.1:1709/", type=str, help="retrieval server 地址")
+parser.add_argument("--url_llm", default="http://127.0.0.1:1707/", type=str, help="大模型 server 地址")
 args = parser.parse_args()
 
 if __name__ == "__main__":
