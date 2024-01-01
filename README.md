@@ -28,21 +28,38 @@ python stream/app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/'
 
 ## 检索部署
 
+### BM25 检索
 - ES 创建 index
-  [create_index.py](retrieval/create_index.py)
+  [create_index.py](retrieval/BM25/create_index.py)
 - ES index 存数据
-  [save_data.py](retrieval/save_data.py)
+  [save_data.py](retrieval/BM25/save_data.py)
 
 ```shell
-python retrieval/create_index.py --index_name my_index
-python retrieval/save_data.py --index_name my_index --file_path my_file.json
+python retrieval/BM25/index.py --index_name 'my_index'
+python retrieval/BM25/save_data.py --index_name 'my_index' --file_path 'my_file.json'
 ```
 
 - ES search 部署
-  [es_search_app.py](retrieval/es_search_app.py)
+  [es_search_app.py](retrieval/BM25/es_search_app.py)
 
 ```shell
-python retrieval/es_search_app.py --port 1709 --index_name my_index
+python retrieval/BM25/es_search_app.py --port 1709 --index_name 'my_index'
+```
+
+### 向量检索（以 BGE 模型为例）
+
+- 构建 index
+  [index.py](retrieval/BGE/index.py)
+
+```shell
+python retrieval/BGE/index.py --model_path 'BAAI/bge-large-zh-v1.5' --index_path 'faiss.index' --file_path 'my_file.json'
+```
+
+- BGE search 部署
+  [search_app.py](retrieval/BGE/search_app.py)
+
+```shell
+python retrieval/BGE/search_app.py --model_path 'BAAI/bge-large-zh-v1.5' --index_path 'faiss.index' --file_path 'my_file.json' --port 1710
 ```
 
 ## 文件处理
@@ -93,8 +110,9 @@ streamlit run demo/web_demo2.py --server.port 6006
 - [x] web demo
 - [x] web demo2
 - [x] ES 检索
-- [ ] pdf, word, txt 格式数据读取及解析
-- [ ] 向量检索
+- [x] pdf, word, txt 格式数据读取及解析
+- [x] 向量检索
+- [ ] 命令行 demo
 - [ ] 接口文档模版
 
 ## 支持的大模型
