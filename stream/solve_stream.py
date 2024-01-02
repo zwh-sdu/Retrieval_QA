@@ -75,7 +75,7 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
         history_obj.history.append(
             {
                 "role": "user",
-                "content": f"请基于参考，回答问题，并给出参考依据：\n问题：\n{query}\n参考：\n{doc_string}\n答案："
+                "content": f"参考资料：\n{doc_string}\n基于以上参考资料，回答问题：\n\n问题：\n{query}"
             }
         )
     else:

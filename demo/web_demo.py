@@ -89,12 +89,8 @@ def reset_state():
     return []
 
 
-parser = argparse.ArgumentParser(
-    description="服务调用方法：python web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'"
-)
-parser.add_argument(
-    "--url_app_stream", default="http://127.0.0.1:1704/get", type=str, help="后端地址"
-)
+parser = argparse.ArgumentParser()
+parser.add_argument("--url_app_stream", default="http://127.0.0.1:1704/get", type=str, help="后端地址")
 args = parser.parse_args()
 
 user_id = random.randint(1, 999999)

@@ -80,9 +80,18 @@ python pdf2word.py --pdf_path 'xxx.pdf' --docx_path 'xxx.docx'
 python word2list.py --docx_path 'xxx.docx' --output_path 'xxx.json' --max_length 500
 ```
 
-## Web demo
+## Demo
 
-仿照 [Chatglm](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
+### 命令行 demo
+
+- [cli_demo.py](demo/cli_demo.py)
+
+```shell
+python demo/cli_demo.py --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http://127.0.0.1:1708/' --top_k 2
+```
+
+### 网页版 demo v1
+仿照 [ChatGLM](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
 运行前请先部署好 [app_stream.py](stream/app_stream.py)
 
 ![Web demo](img/web_demo.png)
@@ -92,6 +101,8 @@ python word2list.py --docx_path 'xxx.docx' --output_path 'xxx.json' --max_length
 ```shell
 python demo/web_demo.py --url_app_stream 'http://127.0.0.1:1704/get'
 ```
+
+### 网页版 demo v1
 
 基于 Streamlit 的网页版 Demo
 
@@ -112,7 +123,7 @@ streamlit run demo/web_demo2.py --server.port 6006
 - [x] ES 检索
 - [x] pdf, word, txt 格式数据读取及解析
 - [x] 向量检索
-- [ ] 命令行 demo
+- [x] 命令行 demo
 - [ ] 接口文档模版
 
 ## 支持的大模型
