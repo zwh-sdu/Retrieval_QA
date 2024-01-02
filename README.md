@@ -29,6 +29,7 @@ python stream/app_stream.py --port 1705 --url_retrieval 'http://127.0.0.1:1709/'
 ## 检索部署
 
 ### BM25 检索
+
 - ES 创建 index
   [create_index.py](retrieval/BM25/create_index.py)
 - ES index 存数据
@@ -84,6 +85,8 @@ python word2list.py --docx_path 'xxx.docx' --output_path 'xxx.json' --max_length
 
 ### 命令行 demo
 
+![cli_demo](img/cli_demo.png)
+
 - [cli_demo.py](demo/cli_demo.py)
 
 ```shell
@@ -91,6 +94,7 @@ python demo/cli_demo.py --url_retrieval 'http://127.0.0.1:1709/' --url_llm 'http
 ```
 
 ### 网页版 demo v1
+
 仿照 [ChatGLM](https://github.com/THUDM/ChatGLM-6B) 实现了基于 [Gradio](https://www.gradio.app/) 的网页版 Demo。
 运行前请先部署好 [app_stream.py](stream/app_stream.py)
 
@@ -133,6 +137,7 @@ streamlit run demo/web_demo2.py --server.port 6006
 ## 请求示例
 
 - 非流式
+
 ```python
 import requests
 import random
@@ -147,6 +152,7 @@ print(res.content)
 ```
 
 - 流式
+
 ```python
 import requests
 import random

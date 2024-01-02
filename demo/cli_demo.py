@@ -106,9 +106,9 @@ def main(stream=True):
                     }
                 )
 
-            print(Fore.RED + Style.BRIGHT + "\nhistory：" + Fore.WHITE, end='')
-            print(history)
-            print(Fore.CYAN + Style.BRIGHT + "\n政务大模型结合检索结果回答：" + Fore.WHITE, end='')
+            # print(Fore.RED + Style.BRIGHT + "\nhistory：" + Fore.WHITE, end='')
+            # print(history)
+            print(Fore.CYAN + Style.BRIGHT + "\n回复：" + Fore.WHITE, end='')
 
             stream = requests.post(args.url_llm, json={"messages": history}, stream=True)
             response = ""
