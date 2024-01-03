@@ -26,18 +26,18 @@ def vim_input():
 
 
 def reformulate_query(history, query):
-    temp_history = []
+    retrieval_key_input = []
     for h in history:
         if h["role"] == "user":
-            temp_history.append(h)
-    temp_history.append(
+            retrieval_key_input.append(h)
+    retrieval_key_input.append(
         {
             "role": "user",
             # "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
             "content": f"""请根据我们的对话历史为【后续问题】生成检索关键词，用于检索与【后续问题】相关的资料。你需要结合对话历史上下文在生成的检索关键词中将代词替换为相应的指代内容，补全必要的上下文语境，使检索关键词更加明确。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n检索关键词："""
         }
     )
-    stream = requests.post(args.url_llm, json={"messages": temp_history}, stream=True)
+    stream = requests.post(args.url_llm, json={"messages": retrieval_key_input}, stream=True)
     new_query = ""
     if stream.status_code == 200:
         buffer = b''
