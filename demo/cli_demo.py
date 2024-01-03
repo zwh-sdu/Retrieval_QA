@@ -27,7 +27,7 @@ def vim_input():
 
 def reformulate_query(history, query):
     # v1
-    rewrite_question_input = history.history.copy()
+    rewrite_question_input = history.copy()
     rewrite_question_input.append(
         {
             "role": "user",
@@ -37,7 +37,7 @@ def reformulate_query(history, query):
 
     # v2
     rewrite_question_input = []
-    for h in history.history:
+    for h in history:
         if h["role"] == "user":
             rewrite_question_input.append(h)
     rewrite_question_input.append(
@@ -50,7 +50,7 @@ def reformulate_query(history, query):
 
     # v3
     temp_history = []
-    for h in history.history:
+    for h in history:
         if h["role"] == "user":
             temp_history.append(h["content"])
     rewrite_question_input = [(
