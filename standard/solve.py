@@ -27,25 +27,42 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
 
     # Rewrite question
     if len(history_obj.history) and top_k:
+        # v1
         rewrite_question_input = history_obj.history.copy()
         rewrite_question_input.append(
             {
                 "role": "user",
+                "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
             }
         )
-        retrieval_key_input = []
+
+        # v2
+        rewrite_question_input = []
         for h in history_obj.history:
             if h["role"] == "user":
-                retrieval_key_input.append(h)
-        retrieval_key_input.append(
+                rewrite_question_input.append(h)
+        rewrite_question_input.append(
             {
                 "role": "user",
                 "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将【后续问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使其问题更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
                 # "content": f"""请根据我们的对话历史为【后续问题】生成检索关键词，用于检索与【后续问题】相关的资料。你需要结合对话历史上下文在生成的检索关键词中将代词替换为相应的指代内容，补全必要的上下文语境，使检索关键词更加明确。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n检索关键词："""
             }
         )
-        # new_query = llm(rewrite_question_input)
-        new_query = llm(retrieval_key_input)
+
+        # v3
+        temp_history = []
+        for h in history_obj.history:
+            if h["role"] == "user":
+                temp_history.append(h["content"])
+        rewrite_question_input = [(
+            {
+                "role": "user",
+                "content": f"""任务：判断【当前问题】语义是否完整，如果完整，则直接返回原始问题，否则根据【对话历史】，重构【当前问题】，将【当前问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使【当前问题】更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意:禁止对问题提供任何答案或解释。直接返回重构后的问题，不要对此做任何解释。\n【对话历史】：{temp_history}\n【当前问题】："{query}"\n重构后的问题：
+                """
+            }
+        )]
+
+        new_query = llm(rewrite_question_input)
     else:
         new_query = query
 
