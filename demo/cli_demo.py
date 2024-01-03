@@ -49,17 +49,17 @@ def reformulate_query(history, query):
     )
 
     # v3
-    temp_history = []
-    for h in history:
-        if h["role"] == "user":
-            temp_history.append(h["content"])
-    rewrite_question_input = [(
-        {
-            "role": "user",
-            "content": f"""任务：判断【当前问题】语义是否完整，如果完整，则直接返回原始问题，否则根据【历史问题】，重构【当前问题】，将【当前问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使【当前问题】更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意:禁止对问题提供任何答案或解释。直接返回重构后的问题，不要对此做任何解释。\n【历史问题】：{temp_history}\n【当前问题】："{query}"\n重构后的问题：
-            """
-        }
-    )]
+    # temp_history = []
+    # for h in history:
+    #     if h["role"] == "user":
+    #         temp_history.append(h["content"])
+    # rewrite_question_input = [(
+    #     {
+    #         "role": "user",
+    #         "content": f"""任务：判断【当前问题】语义是否完整，如果完整，则直接返回原始问题，否则根据【历史问题】，重构【当前问题】，将【当前问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使【当前问题】更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意:禁止对问题提供任何答案或解释。直接返回重构后的问题，不要对此做任何解释。\n【历史问题】：{temp_history}\n【当前问题】："{query}"\n重构后的问题：
+    #         """
+    #     }
+    # )]
 
     stream = requests.post(args.url_llm, json={"messages": rewrite_question_input}, stream=True)
     new_query = ""
