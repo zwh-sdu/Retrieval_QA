@@ -27,26 +27,26 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
     # Rewrite question
     if len(history_obj.history) and top_k:
         # v1
-        rewrite_question_input = history_obj.history.copy()
-        rewrite_question_input.append(
-            {
-                "role": "user",
-                "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
-            }
-        )
+        # rewrite_question_input = history_obj.history.copy()
+        # rewrite_question_input.append(
+        #     {
+        #         "role": "user",
+        #         "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
+        #     }
+        # )
 
         # v2
-        rewrite_question_input = []
-        for h in history_obj.history:
-            if h["role"] == "user":
-                rewrite_question_input.append(h)
-        rewrite_question_input.append(
-            {
-                "role": "user",
-                "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将【后续问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使其问题更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
-                # "content": f"""请根据我们的对话历史为【后续问题】生成检索关键词，用于检索与【后续问题】相关的资料。你需要结合对话历史上下文在生成的检索关键词中将代词替换为相应的指代内容，补全必要的上下文语境，使检索关键词更加明确。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n检索关键词："""
-            }
-        )
+        # rewrite_question_input = []
+        # for h in history_obj.history:
+        #     if h["role"] == "user":
+        #         rewrite_question_input.append(h)
+        # rewrite_question_input.append(
+        #     {
+        #         "role": "user",
+        #         "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将【后续问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使其问题更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
+        #         # "content": f"""请根据我们的对话历史为【后续问题】生成检索关键词，用于检索与【后续问题】相关的资料。你需要结合对话历史上下文在生成的检索关键词中将代词替换为相应的指代内容，补全必要的上下文语境，使检索关键词更加明确。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n检索关键词："""
+        #     }
+        # )
 
         # v3
         # temp_history = []
@@ -60,6 +60,21 @@ def get_knowledge_based_answer(query, history_obj, url_retrieval, top_k=2):
         #         """
         #     }
         # )]
+
+        # v4
+        history_question_str = ""
+        for h in history_obj.history:
+            if h["role"] == "user":
+                history_question_str = history_question_str + h["content"] + "\n"
+        rewrite_question_input = [{
+            "role": "user",
+            "content": f"""你将会被提供一段对话历史，其中包含多个问题和可能的代词，你需要识别出问题中的代词，并确定它们在上下文中的指代对象。你的任务是澄清下一个问题，将其中代词替换为更具体的名词短语，以便使问题更加清晰和易于理解。\n例如，如果对话历史如下：
+        我想开个分公司需要什么材料？
+        如何申请小微企业创业担保贷款？
+        下一个问题为：是否收费？
+        我们可以将下一个问题澄清为：申请小微企业创业担保贷款是否收费？
+        这样，我们就完成了问题澄清的操作。\n注意：禁止随意扩展问题，禁止在澄清问题时重复对话历史中已经问过的问题，澄清后的下一个问题要尽可能与原始的下一个问题保持一致。\n下面请根据以上描述完成问题澄清任务：\n对话历史：{history_question_str}\n下一个问题为：{query}\n澄清后的下一个问题："""
+        }]
 
         stream = requests.post(url_llm, json={"messages": rewrite_question_input}, stream=True)
         new_query = ""
