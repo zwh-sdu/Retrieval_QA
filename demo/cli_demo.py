@@ -26,58 +26,17 @@ def vim_input():
 
 
 def reformulate_query(history, query):
-    # v1
-    # rewrite_question_input = history.copy()
-    # rewrite_question_input.append(
-    #     {
-    #         "role": "user",
-    #         "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将代词替换为相应的指称内容，补全必要的上下文语境，使其问题更加明确。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
-    #     }
-    # )
-
-    # v2
-    # rewrite_question_input = []
-    # for h in history:
-    #     if h["role"] == "user":
-    #         rewrite_question_input.append(h)
-    # rewrite_question_input.append(
-    #     {
-    #         "role": "user",
-    #         "content": f"""请根据我们的对话历史重构【后续问题】。结合上下文将【后续问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使其问题更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n修改后的后续问题："""
-    #         # "content": f"""请根据我们的对话历史为【后续问题】生成检索关键词，用于检索与【后续问题】相关的资料。你需要结合对话历史上下文在生成的检索关键词中将代词替换为相应的指代内容，补全必要的上下文语境，使检索关键词更加明确。\n注意：禁止对问题提供任何答案或解释。\n【后续问题】：{query}\n检索关键词："""
-    #     }
-    # )
-
-    # v3
-    # temp_history = []
-    # for h in history:
-    #     if h["role"] == "user":
-    #         temp_history.append(h["content"])
-    # rewrite_question_input = [(
-    #     {
-    #         "role": "user",
-    #         "content": f"""任务：判断【当前问题】语义是否完整，如果完整，则直接返回原始问题，否则根据【历史问题】，重构【当前问题】，将【当前问题】中的代词替换为相应的指称内容，并补全必要的上下文语境，使【当前问题】更加明确完整。将”该”、“上述”等代词替换为实际指称内容。\n注意:禁止对问题提供任何答案或解释。直接返回重构后的问题，不要对此做任何解释。\n【历史问题】：{temp_history}\n【当前问题】："{query}"\n重构后的问题：
-    #         """
-    #     }
-    # )]
-
     # v4
     history_question_str = ""
     for h in history:
         if h["role"] == "user":
-            history_question_str = history_question_str + h["content"] + "\n"
-    rewrite_question_input = [{
-        "role": "user",
-        "content": f"""你将会被提供一段对话历史，其中包含多个问题和可能的代词，你需要识别出问题中的代词，并确定它们在上下文中的指代对象。你的任务是澄清下一个问题，将其中代词替换为更具体的名词短语，以便使问题更加清晰和易于理解。\n例如，如果对话历史如下：
-    我想开个分公司需要什么材料？
-    如何申请小微企业创业担保贷款？
-    下一个问题为：是否收费？
-    我们可以将下一个问题澄清为：申请小微企业创业担保贷款是否收费？
-    这样，我们就完成了问题澄清的操作。\n注意：禁止随意扩展问题，禁止在澄清问题时重复对话历史中已经问过的问题，澄清后的下一个问题要尽可能与原始的下一个问题保持一致。\n下面请根据以上描述完成问题澄清任务：\n对话历史：{history_question_str}\n下一个问题为：{query}\n澄清后的下一个问题："""
-    }]
-
-    stream = requests.post(args.url_llm, json={"messages": rewrite_question_input}, stream=True)
-    new_query = ""
+            history_question_str = history_question_str + "\n" + h["content"]
+    input1 = [
+        {"role": "user",
+         "content": f"你将被提供一段对话历史和一个后续问题，对话历史中包含了多个问题，你的任务是判断这个后续问题是否与对话历史有关，即后续问题与对话历史中的最后一个问题是否查询相同的事物，直接返回“有关”或“无关”。\n\n对话历史：{history_question_str}\n\n后续问题：{query}\n\n请直接回复“有关”或“无关”，禁止对问题做出任何回答或解释。"}
+    ]
+    stream = requests.post(args.url_llm, json={"messages": input1}, stream=True)
+    flag = ""
     if stream.status_code == 200:
         buffer = b''
         # 逐字节接收数据
@@ -87,13 +46,45 @@ def reformulate_query(history, query):
                 # 尝试解码成 UTF-8 字符串
                 decoded_chunk = buffer.decode('utf-8')
                 # 处理解码后的字符串
-                new_query += decoded_chunk
+                flag += decoded_chunk
                 # print(decoded_chunk, end='', flush=True)
                 # 清空缓冲区
                 buffer = b''
             except UnicodeDecodeError:
                 # 如果解码失败，继续接收字节
                 pass
+    if "有关" in flag:
+        rewrite_question_input = [{
+            "role": "user",
+            "content": f"""你将会被提供一段对话历史，其中包含多个问题和可能的代词，你需要识别出问题中的代词，并确定它们在上下文中的指代对象。你的任务是澄清下一个问题，将其中代词替换为更具体的名词短语，以便使问题更加清晰和易于理解。\n例如，如果对话历史如下：
+        我想开个分公司需要什么材料？
+        如何申请小微企业创业担保贷款？
+        下一个问题为：是否收费？
+        我们可以将下一个问题澄清为：申请小微企业创业担保贷款是否收费？
+        这样，我们就完成了问题澄清的操作。\n注意：禁止随意扩展问题，禁止在澄清问题时重复对话历史中已经问过的问题，澄清后的下一个问题要尽可能与原始的下一个问题保持一致。\n下面请根据以上描述完成问题澄清任务：\n\n对话历史：{history_question_str}\n\n下一个问题为：{query}\n\n澄清后的下一个问题："""
+        }]
+
+        stream = requests.post(args.url_llm, json={"messages": rewrite_question_input}, stream=True)
+        new_query = ""
+        if stream.status_code == 200:
+            buffer = b''
+            # 逐字节接收数据
+            for byte in stream.iter_content(1):
+                buffer += byte
+                try:
+                    # 尝试解码成 UTF-8 字符串
+                    decoded_chunk = buffer.decode('utf-8')
+                    # 处理解码后的字符串
+                    new_query += decoded_chunk
+                    # print(decoded_chunk, end='', flush=True)
+                    # 清空缓冲区
+                    buffer = b''
+                except UnicodeDecodeError:
+                    # 如果解码失败，继续接收字节
+                    pass
+    else:
+        new_query = query
+
     return new_query
 
 
