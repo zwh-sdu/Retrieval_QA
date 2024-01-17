@@ -5,13 +5,13 @@
 ## 大模型部署
 
 - 非流式
-  [api_llm.py](standard/api_llm.py)
+  [api_llm.py](standard/api_baichuan.py)
 - 流式
-  [api_llm_stream.py](stream/api_llm_stream.py)
+  [api_baichuan_stream.py](stream/api_baichuan_stream.py)
 
 ```shell
-python standard/api_llm.py --port 1707 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
-python stream/api_llm_stream.py --port 1708 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
+python standard/api_baichuan.py --port 1707 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
+python stream/api_baichuan_stream.py --port 1708 --cuda_id 0 --model_path 'baichuan-inc/Baichuan2-13B-Chat' --quantize False
 ```
 
 ## 后端部署
@@ -128,11 +128,13 @@ streamlit run demo/web_demo2.py --server.port 6006
 - [x] pdf, word, txt 格式数据读取及解析
 - [x] 向量检索
 - [x] 命令行 demo
+- [x] support ChatGLM
 - [ ] 接口文档模版
 
 ## 支持的大模型
 
 - Baichuan
+- ChatGLM
 
 ## 请求示例
 
