@@ -5,7 +5,7 @@
 ## 大模型部署
 
 - 非流式
-  [api_llm.py](standard/api_baichuan.py)
+  [api_baichuan.py](standard/api_baichuan.py)
 - 流式
   [api_baichuan_stream.py](stream/api_baichuan_stream.py)
 
