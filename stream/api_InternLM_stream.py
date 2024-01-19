@@ -4,24 +4,28 @@ from flask import Flask, request, Response
 from flask_cors import cross_origin
 import json
 import torch
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers.generation.utils import GenerationConfig
 import datetime
 import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cuda_id', type=int, default=0)
-parser.add_argument('--model_path', type=str, default='THUDM/chatglm3-6b')
+parser.add_argument('--model_path', type=str, default='internlm/internlm2-chat-7b')
 parser.add_argument('--port', type=int, default=1707)
 parser.add_argument('--quantize', type=bool, default=False, help='whether to quantize model')
 args = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda_id)
 
-tokenizer = AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
 if args.quantize:
-    model = AutoModel.from_pretrained(args.model_path, trust_remote_code=True, device='cuda').quantize(4).cuda()
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, trust_remote_code=True)
+    model = model.quantize(8).cuda()
 else:
-    model = AutoModel.from_pretrained(args.model_path, trust_remote_code=True, device='cuda')
+    model = AutoModelForCausalLM.from_pretrained(args.model_path, torch_dtype=torch.float16, device_map="auto",
+                                                 trust_remote_code=True).cuda()
+tokenizer = AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
+
 model.eval()
 
 app = Flask(__name__)
@@ -50,8 +54,13 @@ def stream_chat():
         messages = data.get("messages")
         query = messages[-1]["content"]
         history = []
-        for message in messages[:-1]:
-            history.append(message)
+        temp_tuple = []
+        for i, message in enumerate(messages[:-1]):
+            if i % 2 == 0:
+                temp_tuple = [message["content"]]
+            else:
+                temp_tuple.append(message["content"])
+                history.append(temp_tuple)
     return Response(solve(query, history), content_type='text/plain; charset=utf-8')
 
 
