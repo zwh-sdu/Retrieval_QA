@@ -38,7 +38,8 @@ def model_chat():
     try:
         query = data.get("query")
         history = data.get("history")
-        response, _ = model.chat(tokenizer, query, history=history)
+        with torch.no_grad():
+            response, _ = model.chat(tokenizer, query, history=history)
         answer = {"response": response, "history": [], "status": 200, "time": time_format}
         return answer
     except Exception as e:
@@ -46,5 +47,4 @@ def model_chat():
 
 
 if __name__ == '__main__':
-    with torch.no_grad():
-        app.run(host='0.0.0.0', port=args.port)
+    app.run(host='0.0.0.0', port=args.port)

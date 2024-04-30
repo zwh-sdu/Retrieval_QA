@@ -2,7 +2,7 @@ import requests
 import json
 
 
-class Baichuan:
+class Qwen:
     def __init__(self, url):
         self.url = url
 

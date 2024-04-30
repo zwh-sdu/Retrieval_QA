@@ -42,7 +42,8 @@ def model_chat():
     time_format = now.strftime("%Y-%m-%d %H:%M:%S")
     try:
         messages = data.get("messages")
-        response = model.chat(tokenizer, messages)
+        with torch.no_grad():
+            response = model.chat(tokenizer, messages)
         answer = {"response": response, "history": [], "status": 200, "time": time_format}
         return answer
     except Exception as e:
@@ -50,5 +51,4 @@ def model_chat():
 
 
 if __name__ == '__main__':
-    with torch.no_grad():
-        app.run(host='0.0.0.0', port=args.port)
+    app.run(host='0.0.0.0', port=args.port)

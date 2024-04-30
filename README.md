@@ -136,6 +136,7 @@ streamlit run demo/web_demo2.py --server.port 6006
 - Baichuan
 - ChatGLM
 - InternLM
+- Qwen
 
 ## 请求示例
 
